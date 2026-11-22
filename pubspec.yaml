@@ -74,6 +74,7 @@ dependencies:
   flutter_markdown_plus: ^1.0.7
   blur: ^4.0.2
   flutter_acrylic: ^1.1.4
+  window_manager: ^0.5.1
   palette_generator: ^0.3.3+7
   scrollable_positioned_list: ^0.3.8
   fuzzywuzzy: ^1.2.0

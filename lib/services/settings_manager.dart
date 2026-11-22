@@ -163,6 +163,13 @@ class SettingsManager extends ChangeNotifier {
   double get lyricsGlow => _d('LYRICS_GLOW', 1.0);
   set lyricsGlow(double v) => _set('LYRICS_GLOW', v);
 
+  bool get customTitleBar => _box.get('CUSTOM_TITLEBAR', defaultValue: true);
+  set customTitleBar(bool v) => _set('CUSTOM_TITLEBAR', v);
+  bool get alwaysOnTop => _box.get('ALWAYS_ON_TOP', defaultValue: false);
+  set alwaysOnTop(bool v) => _set('ALWAYS_ON_TOP', v);
+  double get windowOpacity => _d('WINDOW_OPACITY', 1.0);
+  set windowOpacity(double v) => _set('WINDOW_OPACITY', v);
+
   /// Recolour the whole UI from the current song's artwork.
   bool get artAccent => _box.get('ART_ACCENT', defaultValue: false);
   set artAccent(bool v) => _set('ART_ACCENT', v);
@@ -181,7 +188,7 @@ class SettingsManager extends ChangeNotifier {
       'TEXT_SCALE', 'SIDEBAR_STYLE', 'CORNER_RADIUS', 'BACKGROUND_STYLE',
       'BACKGROUND_ANIMATED', 'BACKGROUND_DIM', 'GLASS_ENABLED', 'GLASS_BLUR',
       'GLASS_OPACITY', 'FONT_FAMILY', 'LETTER_SPACING', 'WORD_SPACING',
-      'WINDOW_MATERIAL', 'LYRICS_SCALE', 'LYRICS_GLOW', 'ART_ACCENT', 'LYRICS_ALIGN'
+      'WINDOW_MATERIAL', 'LYRICS_SCALE', 'LYRICS_GLOW', 'ART_ACCENT', 'LYRICS_ALIGN', 'CUSTOM_TITLEBAR', 'ALWAYS_ON_TOP', 'WINDOW_OPACITY'
     ]) {
       _box.delete(k);
     }

@@ -24,15 +24,16 @@ import 'services/art_accent.dart';
 import 'services/window_style.dart';
 import 'utils/backgrounds.dart';
 import 'utils/messenger.dart';
+import 'utils/title_bar.dart';
 import 'utils/router.dart';
 import 'ytmusic/ytmusic.dart';
 import 'services/yt_audio_stream.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await WindowStyle.init();
 
   await initialiseHive();
+  await WindowStyle.init();
 
   // Notification / background playback service: mobile & macOS only.
   // Initialising it on Windows/Linux throws (no platform implementation).
@@ -258,8 +259,15 @@ class AppFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsManager>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => WindowStyle.apply(settings.windowMaterial, isDark));
+    WidgetsBinding.instance.addPostFrameCallback((_) => WindowStyle.apply(
+          material: settings.windowMaterial,
+          dark: isDark,
+          customTitleBar: settings.customTitleBar,
+          alwaysOnTop: settings.alwaysOnTop,
+          opacity: settings.windowOpacity,
+        ));
+    final bool showTitleBar =
+        Platform.isWindows && WindowStyle.managerReady && settings.customTitleBar;
 
     final mq = MediaQuery.of(context);
     return Focus(
@@ -270,7 +278,15 @@ class AppFrame extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             const Positioned.fill(child: AppBackground()),
-            child,
+            if (showTitleBar)
+              Column(
+                children: [
+                  const AppTitleBar(),
+                  Expanded(child: child),
+                ],
+              )
+            else
+              child,
           ],
         ),
       ),

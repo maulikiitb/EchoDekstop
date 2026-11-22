@@ -352,7 +352,6 @@ class AppearancePage extends StatelessWidget {
                       'Mica / Tabbed need Windows 11, Acrylic works on Windows 10+',
                   leading: const Icon(Icons.window_outlined),
                   isFirst: true,
-                  isLast: true,
                   trailing: SegmentedButton<int>(
                     showSelectedIcon: false,
                     segments: const [
@@ -364,6 +363,29 @@ class AppearancePage extends StatelessWidget {
                     selected: {s.windowMaterial},
                     onSelectionChanged: (v) => s.windowMaterial = v.first,
                   ),
+                ),
+                SettingSwitchTile(
+                  title: 'Custom title bar',
+                  subtitle: 'Frameless look with built-in window buttons',
+                  leading: const Icon(Icons.web_asset),
+                  value: s.customTitleBar,
+                  onChanged: (v) => s.customTitleBar = v,
+                ),
+                SettingSwitchTile(
+                  title: 'Always on top',
+                  leading: const Icon(Icons.push_pin_outlined),
+                  value: s.alwaysOnTop,
+                  onChanged: (v) => s.alwaysOnTop = v,
+                ),
+                SettingSlider(
+                  label: 'Window opacity  ${(s.windowOpacity * 100).round()}%',
+                  icon: Icons.opacity,
+                  value: s.windowOpacity,
+                  min: 0.5,
+                  max: 1.0,
+                  divisions: 10,
+                  isLast: true,
+                  onChanged: (v) => s.windowOpacity = v,
                 ),
               ],
               if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) ...[
