@@ -24,6 +24,7 @@ import 'services/art_accent.dart';
 import 'services/window_style.dart';
 import 'utils/backgrounds.dart';
 import 'utils/messenger.dart';
+import 'utils/mini_player.dart';
 import 'utils/title_bar.dart';
 import 'utils/router.dart';
 import 'ytmusic/ytmusic.dart';
@@ -274,20 +275,26 @@ class AppFrame extends StatelessWidget {
       onKeyEvent: _onKey,
       child: MediaQuery(
         data: mq.copyWith(textScaler: TextScaler.linear(settings.textScale)),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const Positioned.fill(child: AppBackground()),
-            if (showTitleBar)
-              Column(
-                children: [
-                  const AppTitleBar(),
-                  Expanded(child: child),
-                ],
-              )
-            else
-              child,
-          ],
+        child: ValueListenableBuilder<bool>(
+          valueListenable: WindowStyle.miniMode,
+          builder: (context, mini, _) => Stack(
+            fit: StackFit.expand,
+            children: [
+              const Positioned.fill(child: AppBackground()),
+              Offstage(
+                offstage: mini,
+                child: showTitleBar
+                    ? Column(
+                        children: [
+                          const AppTitleBar(),
+                          Expanded(child: child),
+                        ],
+                      )
+                    : child,
+              ),
+              if (mini) const MiniPlayerView(),
+            ],
+          ),
         ),
       ),
     );

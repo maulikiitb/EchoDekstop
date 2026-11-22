@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../services/window_style.dart';
+
 /// Custom Windows title bar (drag area + minimise / maximise / close).
 class AppTitleBar extends StatefulWidget {
   const AppTitleBar({super.key});
@@ -79,6 +81,11 @@ class _AppTitleBarState extends State<AppTitleBar> with WindowListener {
                   ),
                 ),
               ),
+            ),
+            _CaptionButton(
+              icon: Icons.picture_in_picture_alt_outlined,
+              iconSize: 15,
+              onTap: () => WindowStyle.setMini(true),
             ),
             _CaptionButton(
               icon: Icons.remove,

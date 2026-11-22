@@ -19,6 +19,32 @@ class WindowStyle {
 
   static bool get managerReady => _managerReady;
 
+  /// True while the compact always-on-top mini player is shown.
+  static final ValueNotifier<bool> miniMode = ValueNotifier<bool>(false);
+  static Size? _savedSize;
+
+  static Future<void> setMini(bool on) async {
+    if (!_managerReady || miniMode.value == on) return;
+    try {
+      if (on) {
+        _savedSize = await windowManager.getSize();
+        await windowManager.setMinimumSize(const Size(320, 130));
+        await windowManager.setSize(const Size(440, 150));
+        await windowManager.setAlwaysOnTop(true);
+        _lastOnTop = true;
+      } else {
+        await windowManager.setMinimumSize(const Size(900, 600));
+        await windowManager.setSize(_savedSize ?? const Size(1280, 780));
+        final bool top = Hive.box('SETTINGS').get('ALWAYS_ON_TOP', defaultValue: false);
+        await windowManager.setAlwaysOnTop(top);
+        _lastOnTop = top;
+      }
+      miniMode.value = on;
+    } catch (e) {
+      debugPrint('Mini player toggle failed: $e');
+    }
+  }
+
   /// Call once after Hive is open and before runApp.
   static Future<void> init() async {
     if (!Platform.isWindows) return;
@@ -117,6 +143,7 @@ class _SizeSaver with WindowListener {
     final now = DateTime.now();
     if (now.difference(_last).inMilliseconds < 400) return;
     _last = now;
+    if (WindowStyle.miniMode.value) return;
     try {
       if (await windowManager.isMaximized() ||
           await windowManager.isFullScreen()) {

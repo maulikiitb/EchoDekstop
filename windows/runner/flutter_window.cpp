@@ -62,15 +62,6 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   switch (message) {
-    case WM_GETMINMAXINFO: {
-      // Keep the window large enough for the desktop layout (900x600 dips).
-      const UINT dpi = GetDpiForWindow(hwnd);
-      const double scale = dpi / 96.0;
-      MINMAXINFO* info = reinterpret_cast<MINMAXINFO*>(lparam);
-      info->ptMinTrackSize.x = static_cast<LONG>(900 * scale);
-      info->ptMinTrackSize.y = static_cast<LONG>(600 * scale);
-      return 0;
-    }
     case WM_FONTCHANGE:
       flutter_controller_->engine()->ReloadSystemFonts();
       break;
