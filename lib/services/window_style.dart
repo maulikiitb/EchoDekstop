@@ -77,6 +77,7 @@ class WindowStyle {
         } catch (e) {
           debugPrint('Custom title bar unavailable: $e');
         }
+        await windowManager.setMinimumSize(const Size(900, 600));
         await windowManager.show();
         await windowManager.focus();
       });
