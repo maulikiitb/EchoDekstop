@@ -163,6 +163,14 @@ class SettingsManager extends ChangeNotifier {
   double get lyricsGlow => _d('LYRICS_GLOW', 1.0);
   set lyricsGlow(double v) => _set('LYRICS_GLOW', v);
 
+  /// Recolour the whole UI from the current song's artwork.
+  bool get artAccent => _box.get('ART_ACCENT', defaultValue: false);
+  set artAccent(bool v) => _set('ART_ACCENT', v);
+
+  /// 0 left, 1 centre, 2 right
+  int get lyricsAlign => _box.get('LYRICS_ALIGN', defaultValue: 1);
+  set lyricsAlign(int v) => _set('LYRICS_ALIGN', v);
+
   double get playbackSpeed => _d('PLAYBACK_SPEED', 1.0);
   set playbackSpeed(double v) => _set('PLAYBACK_SPEED', v);
 
@@ -173,7 +181,7 @@ class SettingsManager extends ChangeNotifier {
       'TEXT_SCALE', 'SIDEBAR_STYLE', 'CORNER_RADIUS', 'BACKGROUND_STYLE',
       'BACKGROUND_ANIMATED', 'BACKGROUND_DIM', 'GLASS_ENABLED', 'GLASS_BLUR',
       'GLASS_OPACITY', 'FONT_FAMILY', 'LETTER_SPACING', 'WORD_SPACING',
-      'WINDOW_MATERIAL', 'LYRICS_SCALE', 'LYRICS_GLOW'
+      'WINDOW_MATERIAL', 'LYRICS_SCALE', 'LYRICS_GLOW', 'ART_ACCENT', 'LYRICS_ALIGN'
     ]) {
       _box.delete(k);
     }

@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-void showAppMessage(String text) {
+void showAppMessage(String text,
+    {Duration duration = const Duration(seconds: 6)}) {
   rootMessengerKey.currentState
     ?..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
       content: Text(text, maxLines: 4, overflow: TextOverflow.ellipsis),
       behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 6),
+      duration: duration,
     ));
 }

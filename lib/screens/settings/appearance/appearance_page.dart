@@ -9,6 +9,83 @@ import '../../../themes/app_fonts.dart';
 import '../widgets/setting_item.dart';
 import '../widgets/setting_slider.dart';
 
+
+class _Preset {
+  const _Preset(this.name, this.icon, this.apply);
+  final String name;
+  final IconData icon;
+  final void Function(SettingsManager s) apply;
+}
+
+final List<_Preset> _presets = [
+  _Preset('Midnight', Icons.nightlight_round, (s) {
+    s.setThemeMode(ThemeMode.dark);
+    s.accentColor = const Color(0xFF7C4DFF);
+    s.amoledBlack = true;
+    s.backgroundStyle = 2;
+    s.backgroundAnimated = true;
+    s.backgroundDim = 0.6;
+    s.glassEnabled = true;
+    s.glassBlur = 24;
+    s.glassOpacity = 0.2;
+  }),
+  _Preset('Sunset', Icons.wb_twilight, (s) {
+    s.setThemeMode(ThemeMode.dark);
+    s.accentColor = const Color(0xFFFF6E40);
+    s.amoledBlack = true;
+    s.backgroundStyle = 3;
+    s.backgroundDim = 0.55;
+    s.glassEnabled = true;
+    s.glassBlur = 26;
+    s.glassOpacity = 0.25;
+  }),
+  _Preset('Ocean', Icons.waves, (s) {
+    s.setThemeMode(ThemeMode.dark);
+    s.accentColor = const Color(0xFF00B8D4);
+    s.amoledBlack = false;
+    s.backgroundStyle = 2;
+    s.backgroundAnimated = true;
+    s.backgroundDim = 0.5;
+    s.glassEnabled = true;
+    s.glassBlur = 20;
+    s.glassOpacity = 0.18;
+  }),
+  _Preset('Forest', Icons.park_outlined, (s) {
+    s.setThemeMode(ThemeMode.dark);
+    s.accentColor = const Color(0xFF66BB6A);
+    s.amoledBlack = false;
+    s.backgroundStyle = 1;
+    s.glassEnabled = true;
+    s.glassBlur = 16;
+    s.glassOpacity = 0.22;
+  }),
+  _Preset('Rose', Icons.local_florist_outlined, (s) {
+    s.setThemeMode(ThemeMode.light);
+    s.accentColor = const Color(0xFFEC407A);
+    s.backgroundStyle = 1;
+    s.glassEnabled = true;
+    s.glassBlur = 18;
+    s.glassOpacity = 0.3;
+  }),
+  _Preset('Frost', Icons.ac_unit, (s) {
+    s.setThemeMode(ThemeMode.light);
+    s.accentColor = const Color(0xFF1E88E5);
+    s.backgroundStyle = 2;
+    s.backgroundAnimated = true;
+    s.backgroundDim = 0.7;
+    s.glassEnabled = true;
+    s.glassBlur = 22;
+    s.glassOpacity = 0.35;
+  }),
+  _Preset('Mono', Icons.contrast, (s) {
+    s.setThemeMode(ThemeMode.dark);
+    s.accentColor = null;
+    s.amoledBlack = true;
+    s.backgroundStyle = 0;
+    s.glassEnabled = false;
+  }),
+];
+
 /// Every look-and-feel option of the desktop app lives here.
 class AppearancePage extends StatelessWidget {
   const AppearancePage({super.key});
@@ -39,6 +116,24 @@ class AppearancePage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             children: [
+              const GroupTitle(title: 'Presets'),
+              SettingEmptyTile(
+                isFirst: true,
+                isLast: true,
+                leading: const Icon(Icons.auto_awesome_motion),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final p in _presets)
+                      ActionChip(
+                        avatar: Icon(p.icon, size: 18),
+                        label: Text(p.name),
+                        onPressed: () => p.apply(s),
+                      ),
+                  ],
+                ),
+              ),
               const GroupTitle(title: 'Theme'),
               SettingTile(
                 title: 'Theme mode',
@@ -62,6 +157,13 @@ class AppearancePage extends StatelessWidget {
                 leading: const Icon(Icons.mode_night_outlined),
                 value: s.amoledBlack,
                 onChanged: (v) => s.amoledBlack = v,
+              ),
+              SettingSwitchTile(
+                title: 'Dynamic album colours',
+                subtitle: 'The whole app takes its accent from the current cover art',
+                leading: const Icon(Icons.album_outlined),
+                value: s.artAccent,
+                onChanged: (v) => s.artAccent = v,
               ),
               SettingSwitchTile(
                 title: 'Use Windows accent colour',

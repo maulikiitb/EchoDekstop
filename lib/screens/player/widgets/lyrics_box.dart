@@ -176,7 +176,7 @@ class PlainLyricsWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
         child: SelectableText(
           "\n${lyrics.lyricsPlain}\n",
-          textAlign: TextAlign.center,
+          textAlign: _lyricsAlign(),
           style: TextStyle(
             fontSize: 34 * GetIt.I<SettingsManager>().lyricsScale,
             fontWeight: FontWeight.w800,
@@ -401,7 +401,7 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget>
                         ),
                         child: Text(
                           lyricText,
-                          textAlign: TextAlign.center,
+                          textAlign: _lyricsAlign(),
                         ),
                       );
                     },
@@ -431,5 +431,16 @@ class AnimatedBuilder extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     return builder(context, child);
+  }
+}
+
+TextAlign _lyricsAlign() {
+  switch (GetIt.I<SettingsManager>().lyricsAlign) {
+    case 0:
+      return TextAlign.left;
+    case 2:
+      return TextAlign.right;
+    default:
+      return TextAlign.center;
   }
 }

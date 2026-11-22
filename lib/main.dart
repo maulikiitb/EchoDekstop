@@ -20,6 +20,7 @@ import 'services/library.dart';
 import 'services/lyrics.dart';
 import 'services/media_player.dart';
 import 'services/settings_manager.dart';
+import 'services/art_accent.dart';
 import 'services/window_style.dart';
 import 'utils/backgrounds.dart';
 import 'utils/messenger.dart';
@@ -78,6 +79,7 @@ void main() async {
 
   MediaPlayer mediaPlayer = MediaPlayer();
   GetIt.I.registerSingleton<MediaPlayer>(mediaPlayer);
+  startArtAccent();
   LibraryService libraryService = LibraryService();
   GetIt.I.registerSingleton<DownloadManager>(DownloadManager());
   GetIt.I.registerSingleton(panelKey);
@@ -106,11 +108,21 @@ class Echo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsManager>();
+    return ValueListenableBuilder<Color?>(
+      valueListenable: artAccentColor,
+      builder: (context, artColor, _) =>
+          _buildApp(context, settings, settings.artAccent ? artColor : null),
+    );
+  }
+
+  Widget _buildApp(
+      BuildContext context, SettingsManager settings, Color? artColor) {
+    final Color? accent = artColor ?? settings.accentColor;
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         final bool useDynamic = settings.dynamicColors;
         final lightTheme = AppTheme.light(
-          primary: settings.accentColor,
+          primary: accent,
           dynamicScheme: useDynamic ? lightDynamic : null,
           radius: settings.cornerRadius,
           fontFamily: settings.fontFamily,
@@ -118,7 +130,7 @@ class Echo extends StatelessWidget {
           wordSpacing: settings.wordSpacing,
         );
         final darkTheme = AppTheme.dark(
-          primary: settings.accentColor,
+          primary: accent,
           dynamicScheme: useDynamic ? darkDynamic : null,
           amoled: settings.amoledBlack,
           radius: settings.cornerRadius,
@@ -155,6 +167,8 @@ class AppFrame extends StatelessWidget {
   const AppFrame({super.key, required this.child});
   final Widget child;
 
+  static double _volumeBeforeMute = 1.0;
+
   bool _isTyping() {
     final ctx = FocusManager.instance.primaryFocus?.context;
     if (ctx == null) return false;
@@ -186,6 +200,35 @@ class AppFrame extends StatelessWidget {
       return KeyEventResult.handled;
     }
     if (_isTyping()) return KeyEventResult.ignored;
+
+    if (key == LogicalKeyboardKey.arrowUp || key == LogicalKeyboardKey.arrowDown) {
+      final v = (player.volume + (key == LogicalKeyboardKey.arrowUp ? 0.05 : -0.05))
+          .clamp(0.0, 1.0)
+          .toDouble();
+      player.setVolume(v);
+      showAppMessage('Volume ${(v * 100).round()}%',
+          duration: const Duration(seconds: 1));
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.keyM && event is KeyDownEvent) {
+      if (player.volume > 0) {
+        _volumeBeforeMute = player.volume;
+        player.setVolume(0);
+        showAppMessage('Muted', duration: const Duration(seconds: 1));
+      } else {
+        player.setVolume(_volumeBeforeMute);
+        showAppMessage('Unmuted', duration: const Duration(seconds: 1));
+      }
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.keyN && event is KeyDownEvent) {
+      player.seekToNext();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.keyP && event is KeyDownEvent) {
+      player.seekToPrevious();
+      return KeyEventResult.handled;
+    }
 
     if (key == LogicalKeyboardKey.space && event is KeyDownEvent) {
       player.playing ? player.pause() : player.play();

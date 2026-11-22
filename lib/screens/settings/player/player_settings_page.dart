@@ -94,6 +94,20 @@ class PlayerSettingsPage extends StatelessWidget {
                 isFirst: true,
                 onChanged: (v) => s.lyricsScale = v,
               ),
+              SettingTile(
+                title: 'Lyrics alignment',
+                leading: const Icon(Icons.format_align_center),
+                trailing: SegmentedButton<int>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: 0, label: Text('Left')),
+                    ButtonSegment(value: 1, label: Text('Centre')),
+                    ButtonSegment(value: 2, label: Text('Right')),
+                  ],
+                  selected: {s.lyricsAlign},
+                  onSelectionChanged: (v) => s.lyricsAlign = v.first,
+                ),
+              ),
               SettingSlider(
                 label: 'Lyrics glow  ${(s.lyricsGlow * 100).round()}%',
                 icon: Icons.flare,
