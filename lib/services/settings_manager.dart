@@ -33,13 +33,11 @@ class SettingsManager extends ChangeNotifier {
   double _loudnessTargetGain = 0.0;
 
   // Desktop customisation
-  bool _gradientBackground = true;
   double _textScale = 1.0;
   int _sidebarStyle = 0; // 0 = auto, 1 = compact, 2 = expanded
   double _cornerRadius = 20.0;
   bool _keyboardShortcuts = true;
 
-  bool get gradientBackground => _gradientBackground;
   double get textScale => _textScale;
   int get sidebarStyle => _sidebarStyle;
   double get cornerRadius => _cornerRadius;
@@ -93,19 +91,12 @@ class SettingsManager extends ChangeNotifier {
     _loudnessTargetGain = _box.get('LOUDNESS_TARGET_GAIN', defaultValue: 0.0);
     _equalizerBandsGain =
         _box.get('EQUALIZER_BANDS_GAIN', defaultValue: []).cast<double>();
-    _gradientBackground = _box.get('GRADIENT_BG', defaultValue: true);
     _textScale =
         (_box.get('TEXT_SCALE', defaultValue: 1.0) as num).toDouble();
     _sidebarStyle = _box.get('SIDEBAR_STYLE', defaultValue: 0);
     _cornerRadius =
         (_box.get('CORNER_RADIUS', defaultValue: 20.0) as num).toDouble();
     _keyboardShortcuts = _box.get('KEYBOARD_SHORTCUTS', defaultValue: true);
-  }
-
-  set gradientBackground(bool v) {
-    _box.put('GRADIENT_BG', v);
-    _gradientBackground = v;
-    notifyListeners();
   }
 
   set textScale(double v) {
@@ -132,11 +123,57 @@ class SettingsManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---- Look & feel (stored directly in the settings box) ----
+  double _d(String k, double def) =>
+      (_box.get(k, defaultValue: def) as num).toDouble();
+  void _set(String k, Object? v) {
+    _box.put(k, v);
+    notifyListeners();
+  }
+
+  /// 0 solid, 1 gradient, 2 aurora, 3 album art
+  int get backgroundStyle => _box.get('BACKGROUND_STYLE', defaultValue: 3);
+  set backgroundStyle(int v) => _set('BACKGROUND_STYLE', v);
+  bool get backgroundAnimated =>
+      _box.get('BACKGROUND_ANIMATED', defaultValue: true);
+  set backgroundAnimated(bool v) => _set('BACKGROUND_ANIMATED', v);
+  double get backgroundDim => _d('BACKGROUND_DIM', 0.6);
+  set backgroundDim(double v) => _set('BACKGROUND_DIM', v);
+
+  bool get glassEnabled => _box.get('GLASS_ENABLED', defaultValue: true);
+  set glassEnabled(bool v) => _set('GLASS_ENABLED', v);
+  double get glassBlur => _d('GLASS_BLUR', 18);
+  set glassBlur(double v) => _set('GLASS_BLUR', v);
+  double get glassOpacity => _d('GLASS_OPACITY', 0.22);
+  set glassOpacity(double v) => _set('GLASS_OPACITY', v);
+
+  String get fontFamily => _box.get('FONT_FAMILY', defaultValue: 'Poppins');
+  set fontFamily(String v) => _set('FONT_FAMILY', v);
+  double get letterSpacing => _d('LETTER_SPACING', 0);
+  set letterSpacing(double v) => _set('LETTER_SPACING', v);
+  double get wordSpacing => _d('WORD_SPACING', 0);
+  set wordSpacing(double v) => _set('WORD_SPACING', v);
+
+  /// 0 none, 1 mica, 2 acrylic, 3 tabbed (Windows only)
+  int get windowMaterial => _box.get('WINDOW_MATERIAL', defaultValue: 0);
+  set windowMaterial(int v) => _set('WINDOW_MATERIAL', v);
+
+  double get lyricsScale => _d('LYRICS_SCALE', 1.0);
+  set lyricsScale(double v) => _set('LYRICS_SCALE', v);
+  double get lyricsGlow => _d('LYRICS_GLOW', 1.0);
+  set lyricsGlow(double v) => _set('LYRICS_GLOW', v);
+
+  double get playbackSpeed => _d('PLAYBACK_SPEED', 1.0);
+  set playbackSpeed(double v) => _set('PLAYBACK_SPEED', v);
+
   /// Restores every appearance option to its default.
   void resetAppearance() {
     for (final k in [
       'THEME_MODE', 'ACCENT_COLOR', 'AMOLED_BLACK', 'DYNAMIC_COLORS',
-      'GRADIENT_BG', 'TEXT_SCALE', 'SIDEBAR_STYLE', 'CORNER_RADIUS'
+      'TEXT_SCALE', 'SIDEBAR_STYLE', 'CORNER_RADIUS', 'BACKGROUND_STYLE',
+      'BACKGROUND_ANIMATED', 'BACKGROUND_DIM', 'GLASS_ENABLED', 'GLASS_BLUR',
+      'GLASS_OPACITY', 'FONT_FAMILY', 'LETTER_SPACING', 'WORD_SPACING',
+      'WINDOW_MATERIAL', 'LYRICS_SCALE', 'LYRICS_GLOW'
     ]) {
       _box.delete(k);
     }

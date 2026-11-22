@@ -9,6 +9,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../utils/add_history.dart';
+import '../utils/messenger.dart';
 import '../ytmusic/ytmusic.dart';
 import 'settings_manager.dart';
 
@@ -116,6 +117,11 @@ class MediaPlayer extends ChangeNotifier {
     _listenToShuffle();
     _listenToAutofetch();
     _listenToPlayerErrors();
+
+    try {
+      final speed = GetIt.I<SettingsManager>().playbackSpeed;
+      if (speed != 1.0) await _player.setSpeed(speed);
+    } catch (_) {}
 
     try {
       await _loadLoudnessEnhancer();
@@ -233,6 +239,7 @@ class MediaPlayer extends ChangeNotifier {
     _player.playbackEventStream.listen(
       (event) {},
       onError: (Object e, StackTrace st) {
+        showAppMessage('Playback error: $e');
         _buttonState.value = ButtonState.paused;
         notifyListeners();
       },
@@ -315,6 +322,15 @@ class MediaPlayer extends ChangeNotifier {
         break;
     }
     _player.setLoopMode(_loopMode.value);
+  }
+
+  Future<void> setPlaybackSpeed(double speed) async {
+    GetIt.I<SettingsManager>().playbackSpeed = speed;
+    try {
+      await _player.setSpeed(speed);
+    } catch (e) {
+      debugPrint('Speed change unsupported: $e');
+    }
   }
 
   Future<void> skipSilence(bool value) async {
@@ -410,6 +426,7 @@ class MediaPlayer extends ChangeNotifier {
     } catch (e) {
       if (_lastPlayRequestId == requestId) {
         print("Error playing song: $e");
+        showAppMessage('Could not play this song: $e');
         _buttonState.value = ButtonState.paused;
         notifyListeners();
       }

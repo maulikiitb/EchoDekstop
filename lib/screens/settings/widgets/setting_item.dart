@@ -3,6 +3,16 @@ import 'package:get_it/get_it.dart';
 
 import '../../../services/settings_manager.dart';
 
+Color _tileColor(BuildContext context) {
+  final base = Theme.of(context).colorScheme.surfaceContainer;
+  if (!GetIt.I.isRegistered<SettingsManager>()) return base;
+  final sm = GetIt.I<SettingsManager>();
+  // Glass mode: let the background show through the cards.
+  return sm.glassEnabled
+      ? base.withValues(alpha: (sm.glassOpacity + 0.45).clamp(0.3, 0.9).toDouble())
+      : base;
+}
+
 double _tileRadius() => GetIt.I.isRegistered<SettingsManager>()
     ? GetIt.I<SettingsManager>().cornerRadius
     : 20.0;
@@ -49,7 +59,7 @@ class SettingEmptyTile extends StatelessWidget {
           bottomRight: Radius.circular(isLast ? _tileRadius() : 4),
         ),
       ),
-      tileColor: Theme.of(context).colorScheme.surfaceContainer,
+      tileColor: _tileColor(context),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: leading == null
           ? null
@@ -101,7 +111,7 @@ class SettingTile extends StatelessWidget {
             bottomRight: Radius.circular(isLast ? _tileRadius() : 4),
           ),
         ),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
+        tileColor: _tileColor(context),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
           title,
@@ -167,7 +177,7 @@ class SettingSwitchTile extends StatelessWidget {
             bottomRight: Radius.circular(isLast ? _tileRadius() : 4),
           ),
         ),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
+        tileColor: _tileColor(context),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
           title,

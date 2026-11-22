@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../generated/l10n.dart';
 import '../../services/settings_manager.dart';
+import '../../utils/glass.dart';
 import 'widgets/bottom_player.dart';
 
 class AppShell extends StatefulWidget {
@@ -45,7 +46,11 @@ class _AppShellState extends State<AppShell> {
             children: [
               if (wide)
                 SafeArea(
-                  child: NavigationRail(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                    child: Glass(
+                      radius: settings.cornerRadius + 4,
+                      child: NavigationRail(
                     extended: extended,
                     labelType: extended
                         ? NavigationRailLabelType.none
@@ -77,6 +82,8 @@ class _AppShellState extends State<AppShell> {
                     ],
                     selectedIndex: widget.navigationShell.currentIndex,
                     onDestinationSelected: _goBranch,
+                      ),
+                    ),
                   ),
                 ),
               Expanded(child: widget.navigationShell),

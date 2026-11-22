@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'app_fonts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final defaultFontStyle = GoogleFonts.poppins();
+TextStyle get defaultFontStyle => AppFonts.style();
 TextStyle bigTextStyle(BuildContext context,
     {double opacity = 1, bool bold = true}) {
   return defaultFontStyle.copyWith(

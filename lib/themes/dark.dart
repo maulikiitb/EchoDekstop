@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'app_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 //             onPrimaryContainer: Colors.black,
 //             surface: accentColor.withAlpha(10),
 //           )
-final defaultFontStyle = GoogleFonts.poppins();
+TextStyle get defaultFontStyle => AppFonts.style();
 ColorScheme darkScheme = const ColorScheme.dark();
 ThemeData darkTheme({required ColorScheme colorScheme}) {
   return ThemeData.dark().copyWith(

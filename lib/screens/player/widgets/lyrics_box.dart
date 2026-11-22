@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:Echo/models/lyrics_model.dart'; // Import the new model
 import 'package:Echo/services/lyrics.dart'; // Import the new service
 import 'package:Echo/services/media_player.dart';
+import 'package:Echo/services/settings_manager.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';
 import 'package:provider/provider.dart';
@@ -176,8 +177,8 @@ class PlainLyricsWidget extends StatelessWidget {
         child: SelectableText(
           "\n${lyrics.lyricsPlain}\n",
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 34,
+          style: TextStyle(
+            fontSize: 34 * GetIt.I<SettingsManager>().lyricsScale,
             fontWeight: FontWeight.w800,
             color: Colors.white,
             height: 1.5,
@@ -368,7 +369,8 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget>
                         duration: const Duration(milliseconds: 400),
                         curve: Curves.easeOutCubic,
                         style: TextStyle(
-                          fontSize: isCurrent ? 38 : 28, // Large active, small inactive
+                          fontSize: (isCurrent ? 38 : 28) *
+                              GetIt.I<SettingsManager>().lyricsScale,
                           fontWeight:
                               isCurrent ? FontWeight.w900 : FontWeight.w600,
                           color: isCurrent
@@ -381,17 +383,17 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget>
                                   // Spicy Lyrics Glow Effect
                                   Shadow(
                                     color: Colors.white.withValues(
-                                        alpha: _glowAnimation.value * 0.8),
+                                        alpha: (_glowAnimation.value * 0.8 * GetIt.I<SettingsManager>().lyricsGlow).clamp(0.0, 1.0).toDouble()),
                                     blurRadius: 15,
                                   ),
                                   Shadow(
                                     color: Colors.white.withValues(
-                                        alpha: _glowAnimation.value * 0.4),
+                                        alpha: (_glowAnimation.value * 0.4 * GetIt.I<SettingsManager>().lyricsGlow).clamp(0.0, 1.0).toDouble()),
                                     blurRadius: 30,
                                   ),
                                   Shadow(
                                     color: Colors.blueAccent.withValues(
-                                        alpha: _glowAnimation.value * 0.3),
+                                        alpha: (_glowAnimation.value * 0.3 * GetIt.I<SettingsManager>().lyricsGlow).clamp(0.0, 1.0).toDouble()),
                                     blurRadius: 50,
                                   ),
                                 ]

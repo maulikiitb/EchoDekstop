@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../../../services/settings_manager.dart';
 import '../../../utils/bottom_modals.dart';
+import '../../../themes/app_fonts.dart';
 import '../widgets/setting_item.dart';
+import '../widgets/setting_slider.dart';
 
 /// Every look-and-feel option of the desktop app lives here.
 class AppearancePage extends StatelessWidget {
@@ -60,13 +62,6 @@ class AppearancePage extends StatelessWidget {
                 leading: const Icon(Icons.mode_night_outlined),
                 value: s.amoledBlack,
                 onChanged: (v) => s.amoledBlack = v,
-              ),
-              SettingSwitchTile(
-                title: 'Gradient background',
-                subtitle: 'Soft accent-tinted gradient behind every page',
-                leading: const Icon(Icons.gradient),
-                value: s.gradientBackground,
-                onChanged: (v) => s.gradientBackground = v,
               ),
               SettingSwitchTile(
                 title: 'Use Windows accent colour',
@@ -124,29 +119,151 @@ class AppearancePage extends StatelessWidget {
                   onSelectionChanged: (v) => s.sidebarStyle = v.first,
                 ),
               ),
-              SettingEmptyTile(
-                leading: const Icon(Icons.text_fields),
-                child: _SliderRow(
-                  label: 'Text size  ${(s.textScale * 100).round()}%',
-                  value: s.textScale,
-                  min: 0.8,
-                  max: 1.4,
-                  divisions: 12,
-                  onChanged: (v) => s.textScale = v,
-                ),
+              SettingSlider(
+                label: 'Text size  ${(s.textScale * 100).round()}%',
+                icon: Icons.text_fields,
+                value: s.textScale,
+                min: 0.8,
+                max: 1.4,
+                divisions: 12,
+                onChanged: (v) => s.textScale = v,
               ),
-              SettingEmptyTile(
+              SettingSlider(
+                label: 'Corner roundness  ${s.cornerRadius.round()}',
+                icon: Icons.rounded_corner,
+                value: s.cornerRadius,
+                min: 4,
+                max: 32,
+                divisions: 14,
                 isLast: true,
-                leading: const Icon(Icons.rounded_corner),
-                child: _SliderRow(
-                  label: 'Corner roundness  ${s.cornerRadius.round()}',
-                  value: s.cornerRadius,
-                  min: 4,
-                  max: 32,
-                  divisions: 14,
-                  onChanged: (v) => s.cornerRadius = v,
+                onChanged: (v) => s.cornerRadius = v,
+              ),
+              const GroupTitle(title: 'Background'),
+              SettingTile(
+                title: 'Style',
+                leading: const Icon(Icons.wallpaper),
+                isFirst: true,
+                trailing: SegmentedButton<int>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: 0, label: Text('Solid')),
+                    ButtonSegment(value: 1, label: Text('Gradient')),
+                    ButtonSegment(value: 2, label: Text('Aurora')),
+                    ButtonSegment(value: 3, label: Text('Album art')),
+                  ],
+                  selected: {s.backgroundStyle},
+                  onSelectionChanged: (v) => s.backgroundStyle = v.first,
                 ),
               ),
+              if (s.backgroundStyle == 2)
+                SettingSwitchTile(
+                  title: 'Animate aurora',
+                  leading: const Icon(Icons.animation),
+                  value: s.backgroundAnimated,
+                  onChanged: (v) => s.backgroundAnimated = v,
+                ),
+              SettingSlider(
+                label: 'Background dimming  ${(s.backgroundDim * 100).round()}%',
+                icon: Icons.brightness_6_outlined,
+                value: s.backgroundDim,
+                min: 0.2,
+                max: 0.95,
+                divisions: 15,
+                isLast: true,
+                onChanged: (v) => s.backgroundDim = v,
+              ),
+              const GroupTitle(title: 'Liquid glass'),
+              SettingSwitchTile(
+                title: 'Glass panels',
+                subtitle: 'Frosted, blurred sidebar, player bar and cards',
+                leading: const Icon(Icons.blur_on),
+                isFirst: true,
+                isLast: !s.glassEnabled,
+                value: s.glassEnabled,
+                onChanged: (v) => s.glassEnabled = v,
+              ),
+              if (s.glassEnabled) ...[
+                SettingSlider(
+                  label: 'Blur strength  ${s.glassBlur.round()}',
+                  icon: Icons.lens_blur,
+                  value: s.glassBlur,
+                  min: 0,
+                  max: 50,
+                  divisions: 25,
+                  onChanged: (v) => s.glassBlur = v,
+                ),
+                SettingSlider(
+                  label: 'Tint strength  ${(s.glassOpacity * 100).round()}%',
+                  icon: Icons.opacity,
+                  value: s.glassOpacity,
+                  min: 0.02,
+                  max: 0.7,
+                  divisions: 34,
+                  isLast: true,
+                  onChanged: (v) => s.glassOpacity = v,
+                ),
+              ],
+              const GroupTitle(title: 'Typography'),
+              SettingTile(
+                title: 'Font',
+                subtitle: 'Fonts download on first use (needs internet)',
+                leading: const Icon(Icons.font_download_outlined),
+                isFirst: true,
+                trailing: DropdownButton<String>(
+                  value: AppFonts.families.contains(s.fontFamily)
+                      ? s.fontFamily
+                      : AppFonts.families.first,
+                  underline: const SizedBox(),
+                  items: [
+                    for (final f in AppFonts.families)
+                      DropdownMenuItem(value: f, child: Text(f)),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) s.fontFamily = v;
+                  },
+                ),
+              ),
+              SettingSlider(
+                label: 'Letter spacing  ${s.letterSpacing.toStringAsFixed(1)}',
+                icon: Icons.space_bar,
+                value: s.letterSpacing,
+                min: -1,
+                max: 4,
+                divisions: 50,
+                onChanged: (v) => s.letterSpacing = double.parse(v.toStringAsFixed(1)),
+              ),
+              SettingSlider(
+                label: 'Word spacing  ${s.wordSpacing.toStringAsFixed(1)}',
+                icon: Icons.text_format,
+                value: s.wordSpacing,
+                min: 0,
+                max: 12,
+                divisions: 24,
+                isLast: true,
+                onChanged: (v) => s.wordSpacing = double.parse(v.toStringAsFixed(1)),
+              ),
+              if (Platform.isWindows) ...[
+                const GroupTitle(title: 'Window'),
+                SettingTile(
+                  title: 'Window material',
+                  subtitle:
+                      'Mica / Tabbed need Windows 11, Acrylic works on Windows 10+',
+                  leading: const Icon(Icons.window_outlined),
+                  isFirst: true,
+                  isLast: true,
+                  trailing: SegmentedButton<int>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(value: 0, label: Text('None')),
+                      ButtonSegment(value: 1, label: Text('Mica')),
+                      ButtonSegment(value: 2, label: Text('Acrylic')),
+                      ButtonSegment(value: 3, label: Text('Tabbed')),
+                    ],
+                    selected: {s.windowMaterial},
+                    onSelectionChanged: (v) => s.windowMaterial = v.first,
+                  ),
+                ),
+              ],
               if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) ...[
                 const GroupTitle(title: 'Keyboard'),
                 SettingSwitchTile(
@@ -219,38 +336,6 @@ class _Swatch extends StatelessWidget {
                         : Colors.black))
             : null,
       ),
-    );
-  }
-}
-
-class _SliderRow extends StatelessWidget {
-  const _SliderRow({
-    required this.label,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.divisions,
-    required this.onChanged,
-  });
-  final String label;
-  final double value, min, max;
-  final int divisions;
-  final ValueChanged<double> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        Slider(
-          value: value.clamp(min, max),
-          min: min,
-          max: max,
-          divisions: divisions,
-          onChanged: onChanged,
-        ),
-      ],
     );
   }
 }

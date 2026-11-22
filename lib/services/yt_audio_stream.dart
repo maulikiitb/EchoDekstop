@@ -20,8 +20,7 @@ class YouTubeAudioSource extends StreamAudioSource {
   Future<AudioOnlyStreamInfo> _getStreamInfo() async {
     if (_cachedStreamInfo != null) return _cachedStreamInfo!;
 
-    final manifest = await ytExplode.videos.streams.getManifest(videoId,
-        requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
+    final manifest = await fetchStreamManifest(ytExplode, videoId);
     Iterable<AudioOnlyStreamInfo> supportedStreams = manifest.audioOnly;
     if (Platform.isMacOS || Platform.isIOS) {
       final mp4Streams = supportedStreams
@@ -149,8 +148,7 @@ Future<void> handleAudioRequest(HttpRequest request) async {
 
     if (audioStreamInfo == null) {
       // 2. Get the Stream Manifest and select the audio stream
-      final manifest = await ytExplode.videos.streamsClient.getManifest(videoId,
-          requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
+      final manifest = await fetchStreamManifest(ytExplode, videoId);
 
       Iterable<AudioOnlyStreamInfo> supportedStreams = manifest.audioOnly;
       if (Platform.isMacOS || Platform.isIOS) {
@@ -287,8 +285,7 @@ Future<AudioSource> getDirectUrlAudioSource(
 
   try {
     // 2. Fetch Manifest using singleton client (faster than creating new instance)
-    final manifest = await _ytClient.videos.streamsClient.getManifest(videoId,
-        requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
+    final manifest = await fetchStreamManifest(_ytClient, videoId);
     Iterable<AudioOnlyStreamInfo> supportedStreams = manifest.audioOnly;
 
     // Filter for mp4/m4a on Apple platforms for better compatibility
@@ -323,16 +320,62 @@ Future<AudioSource> getDirectUrlAudioSource(
   }
 }
 
+/// YouTube changes which player clients work every few weeks, so try the
+/// library's own automatic selection first and then fall back to others.
+Future<StreamManifest> fetchStreamManifest(
+    YoutubeExplode yt, String videoId) async {
+  final attempts = <List<YoutubeApiClient>?>[
+    null, // library default (handles its own fallbacks)
+    [YoutubeApiClient.androidVr],
+    [YoutubeApiClient.tv],
+    [YoutubeApiClient.mweb],
+    [YoutubeApiClient.androidSdkless],
+  ];
+  Object? lastError;
+  for (final clients in attempts) {
+    try {
+      final manifest = clients == null
+          ? await yt.videos.streamsClient.getManifest(videoId)
+          : await yt.videos.streamsClient
+              .getManifest(videoId, ytClients: clients);
+      if (manifest.audioOnly.isNotEmpty) return manifest;
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw Exception('No playable audio stream found: $lastError');
+}
+
+const _browserUserAgent =
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.18 Safari/537.36';
+
+/// Downloads bytes [start]..[end] (inclusive) in <=~10 MB chunks using the
+/// `range` query parameter, which is what YouTube's CDN expects.
 Future<Stream<List<int>>> _downloadStream(Uri url, int start, int end) async {
-  final client = HttpClient()..autoUncompress = false;
-  final request = await client.getUrl(url);
-  request.headers.add(HttpHeaders.rangeHeader, "bytes=$start-$end");
-  final response = await request.close();
-  // Release the socket pool once the body has been fully consumed.
-  return response.transform(StreamTransformer<List<int>, List<int>>.fromHandlers(
-    handleDone: (sink) {
-      sink.close();
-      client.close();
-    },
-  ));
+  return _rangedStream(url, start, end);
+}
+
+Stream<List<int>> _rangedStream(Uri url, int start, int end) async* {
+  const chunk = 9898989;
+  final client = HttpClient();
+  try {
+    var pos = start;
+    while (pos <= end) {
+      final to = (pos + chunk - 1) < end ? (pos + chunk - 1) : end;
+      final params = Map<String, String>.from(url.queryParameters)
+        ..['range'] = '$pos-$to';
+      final request = await client.getUrl(url.replace(queryParameters: params));
+      request.headers.set(HttpHeaders.userAgentHeader, _browserUserAgent);
+      final response = await request.close();
+      if (response.statusCode >= 400) {
+        throw HttpException('Audio request failed: HTTP ${response.statusCode}');
+      }
+      await for (final data in response) {
+        yield data;
+      }
+      pos = to + 1;
+    }
+  } finally {
+    client.close(force: true);
+  }
 }

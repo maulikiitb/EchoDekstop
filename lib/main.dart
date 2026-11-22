@@ -20,12 +20,16 @@ import 'services/library.dart';
 import 'services/lyrics.dart';
 import 'services/media_player.dart';
 import 'services/settings_manager.dart';
+import 'services/window_style.dart';
+import 'utils/backgrounds.dart';
+import 'utils/messenger.dart';
 import 'utils/router.dart';
 import 'ytmusic/ytmusic.dart';
 import 'services/yt_audio_stream.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await WindowStyle.init();
 
   await initialiseHive();
 
@@ -109,16 +113,23 @@ class Echo extends StatelessWidget {
           primary: settings.accentColor,
           dynamicScheme: useDynamic ? lightDynamic : null,
           radius: settings.cornerRadius,
+          fontFamily: settings.fontFamily,
+          letterSpacing: settings.letterSpacing,
+          wordSpacing: settings.wordSpacing,
         );
         final darkTheme = AppTheme.dark(
           primary: settings.accentColor,
           dynamicScheme: useDynamic ? darkDynamic : null,
           amoled: settings.amoledBlack,
           radius: settings.cornerRadius,
+          fontFamily: settings.fontFamily,
+          letterSpacing: settings.letterSpacing,
+          wordSpacing: settings.wordSpacing,
         );
         return MaterialApp.router(
           title: 'Echo Music',
           routerConfig: router,
+          scaffoldMessengerKey: rootMessengerKey,
           locale: Locale(settings.language['value']!),
           localizationsDelegates: const [
             S.delegate,
@@ -203,29 +214,22 @@ class AppFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsManager>();
-    final scheme = Theme.of(context).colorScheme;
-    final bg = settings.gradientBackground
-        ? BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(
-                    scheme.primary.withValues(alpha: 0.10), scheme.surface),
-                scheme.surface,
-                Color.alphaBlend(
-                    scheme.tertiary.withValues(alpha: 0.08), scheme.surface),
-              ],
-            ),
-          )
-        : BoxDecoration(color: scheme.surface);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => WindowStyle.apply(settings.windowMaterial, isDark));
 
     final mq = MediaQuery.of(context);
     return Focus(
       onKeyEvent: _onKey,
       child: MediaQuery(
         data: mq.copyWith(textScaler: TextScaler.linear(settings.textScale)),
-        child: DecoratedBox(decoration: bg, child: child),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const Positioned.fill(child: AppBackground()),
+            child,
+          ],
+        ),
       ),
     );
   }

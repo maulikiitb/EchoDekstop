@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_fonts.dart';
 import 'typography.dart';
 
 /// Builds the app themes from the user's appearance settings.
@@ -63,22 +64,32 @@ class AppTheme {
     Color? primary,
     ColorScheme? dynamicScheme,
     double radius = 20,
+    String fontFamily = 'Poppins',
+    double letterSpacing = 0,
+    double wordSpacing = 0,
   }) =>
       _build(lightScheme(accent: primary, dynamicScheme: dynamicScheme),
-          radius);
+          radius, fontFamily, letterSpacing, wordSpacing);
 
   static ThemeData dark({
     Color? primary,
     ColorScheme? dynamicScheme,
     bool amoled = true,
     double radius = 20,
+    String fontFamily = 'Poppins',
+    double letterSpacing = 0,
+    double wordSpacing = 0,
   }) =>
       _build(
           darkScheme(
               accent: primary, dynamicScheme: dynamicScheme, amoled: amoled),
-          radius);
+          radius,
+          fontFamily,
+          letterSpacing,
+          wordSpacing);
 
-  static ThemeData _build(ColorScheme scheme, double radius) {
+  static ThemeData _build(ColorScheme scheme, double radius, String fontFamily,
+      double letterSpacing, double wordSpacing) {
     final base = ThemeData(
       useMaterial3: true,
       brightness: scheme.brightness,
@@ -89,9 +100,14 @@ class AppTheme {
       // The real background is painted once by the app (see main.dart) so
       // every page can stay transparent over it.
       scaffoldBackgroundColor: Colors.transparent,
-      textTheme: appTextTheme(base.textTheme).apply(
-        bodyColor: scheme.onSurface,
-        displayColor: scheme.onSurface,
+      textTheme: AppFonts.textTheme(
+        appTextTheme(base.textTheme).apply(
+          bodyColor: scheme.onSurface,
+          displayColor: scheme.onSurface,
+        ),
+        family: fontFamily,
+        letterSpacing: letterSpacing,
+        wordSpacing: wordSpacing,
       ),
       visualDensity: VisualDensity.standard,
       appBarTheme: AppBarTheme(
