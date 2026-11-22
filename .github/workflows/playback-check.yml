@@ -1,0 +1,21 @@
+name: Playback check
+on:
+  workflow_dispatch:
+  push:
+    branches: ["dev"]
+    paths:
+      - "test/playback_check_test.dart"
+      - ".github/workflows/playback-check.yml"
+      - "lib/services/yt_audio_stream.dart"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test test/playback_check_test.dart --reporter expanded

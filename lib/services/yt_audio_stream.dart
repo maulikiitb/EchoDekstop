@@ -379,3 +379,7 @@ Stream<List<int>> _rangedStream(Uri url, int start, int end) async* {
     client.close(force: true);
   }
 }
+
+/// Public wrapper used by the playback self-test (test/playback_check_test.dart).
+Stream<List<int>> rangedAudioStream(Uri url, int start, int end) =>
+    _rangedStream(url, start, end);
