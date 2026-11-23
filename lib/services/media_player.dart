@@ -371,6 +371,11 @@ class MediaPlayer extends ChangeNotifier {
             GetIt.I<SettingsManager>().streamingQuality.name.toLowerCase();
         return await getDirectUrlAudioSource(song['videoId'], quality, tag);
       }
+      if (Platform.isWindows || Platform.isLinux) {
+        final quality =
+            GetIt.I<SettingsManager>().streamingQuality.name.toLowerCase();
+        return await getCachedFileAudioSource(song['videoId'], quality, tag);
+      }
       return YouTubeAudioSource(
         videoId: song['videoId'],
         quality: GetIt.I<SettingsManager>().streamingQuality.name.toLowerCase(),

@@ -70,7 +70,7 @@ class _AppTitleBarState extends State<AppTitleBar> with WindowListener {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Echo Music',
+                        'Sonora',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

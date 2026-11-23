@@ -1,7 +1,9 @@
-# Echo Music Desktop
+<p align="center"><img src="docs/logo.png" width="128" alt="Sonora logo"></p>
 
-A Windows desktop build of the open-source **Echo Music** player, with a heavily
-customisable "liquid glass" interface. Built with Flutter.
+# Sonora
+
+A Windows desktop music player, based on the open-source **Echo Music** app, with a heavily
+customisable "liquid glass" interface (glass effect from the `liquid_glass_widgets` package). Built with Flutter.
 
 > Unofficial personal build. Based on the Flutter desktop port of
 > [Echo Music](https://github.com/iad1tya/Echo-Music) by iad1tya (GPL-3.0).
@@ -10,9 +12,9 @@ customisable "liquid glass" interface. Built with Flutter.
 ## Download
 
 Every push to `main` builds the app on GitHub Actions: open the **Actions** tab,
-pick the latest green run and download the **EchoMusic-Windows** artifact. Tagged
+pick the latest green run and download the **Sonora-Windows** artifact. Tagged
 versions (`v*`) are published on the **Releases** page. Unzip the folder and run
-`echo.exe` (keep the other files next to it). Windows SmartScreen may warn about an
+`Sonora.exe` (keep the other files next to it). Windows SmartScreen may warn about an
 unsigned app: *More info → Run anyway*.
 
 ## Customisation (Settings → Appearance)

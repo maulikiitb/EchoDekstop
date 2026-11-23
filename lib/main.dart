@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
@@ -41,7 +42,7 @@ void main() async {
   if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
     await JustAudioBackground.init(
       androidNotificationChannelId: 'com.echo.music.audio',
-      androidNotificationChannelName: 'Echo Music',
+      androidNotificationChannelName: 'Sonora',
       androidNotificationOngoing: true,
       androidShowNotificationBadge: true,
     );
@@ -51,7 +52,7 @@ void main() async {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     JustAudioMediaKit.ensureInitialized();
     JustAudioMediaKit.bufferSize = 8 * 1024 * 1024;
-    JustAudioMediaKit.title = 'Echo Music';
+    JustAudioMediaKit.title = 'Sonora';
     JustAudioMediaKit.prefetchPlaylist = true;
     JustAudioMediaKit.pitch = true;
   }
@@ -92,6 +93,12 @@ void main() async {
   GetIt.I.registerSingleton<LibraryService>(libraryService);
   GetIt.I.registerSingleton<LyricsService>(LyricsService());
 
+  try {
+    await LiquidGlassWidgets.initialize();
+  } catch (e) {
+    debugPrint('Glass shaders unavailable: $e');
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -99,7 +106,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => mediaPlayer),
         ChangeNotifierProvider(create: (_) => libraryService),
       ],
-      child: const Echo(),
+      child: LiquidGlassWidgets.wrap(
+        brightnessResolver: Theme.maybeBrightnessOf,
+        child: const Echo(),
+      ),
     ),
   );
 }
@@ -141,7 +151,7 @@ class Echo extends StatelessWidget {
           wordSpacing: settings.wordSpacing,
         );
         return MaterialApp.router(
-          title: 'Echo Music',
+          title: 'Sonora',
           routerConfig: router,
           scaffoldMessengerKey: rootMessengerKey,
           locale: Locale(settings.language['value']!),

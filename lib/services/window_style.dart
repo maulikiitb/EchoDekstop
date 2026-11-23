@@ -65,7 +65,7 @@ class WindowStyle {
         size: Size(w.clamp(900.0, 4000.0).toDouble(), h.clamp(600.0, 3000.0).toDouble()),
         minimumSize: const Size(900, 600),
         center: true,
-        title: 'Echo Music',
+        title: 'Sonora',
       );
       await windowManager.waitUntilReadyToShow(options, () async {
         try {

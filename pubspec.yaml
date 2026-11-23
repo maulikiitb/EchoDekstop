@@ -1,5 +1,5 @@
 name: Echo
-description: "Echo Music Desktop"
+description: "Sonora - a customisable desktop music player"
 publish_to: "none"
 version: 1.0.0+0
 
@@ -75,6 +75,10 @@ dependencies:
   blur: ^4.0.2
   flutter_acrylic: ^1.1.4
   window_manager: ^0.5.1
+  liquid_glass_widgets:
+    git:
+      url: https://github.com/sdegenaar/liquid_glass_widgets
+      ref: 3638a1b1a084c70be702b364a3d9f815e565c1bb
   palette_generator: ^0.3.3+7
   scrollable_positioned_list: ^0.3.8
   fuzzywuzzy: ^1.2.0

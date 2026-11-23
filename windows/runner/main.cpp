@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(120, 70);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"Echo Music", origin, size)) {
+  if (!window.Create(L"Sonora", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

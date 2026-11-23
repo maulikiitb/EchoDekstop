@@ -30,7 +30,7 @@ class AboutPage extends StatelessWidget {
               
               // App Name
               const Text(
-                'Echo Music',
+                'Sonora',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),

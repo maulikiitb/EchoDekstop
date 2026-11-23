@@ -152,7 +152,7 @@ class _HomePageState extends State<_HomePage> {
           child: AppBar(
             automaticallyImplyLeading: false,
             title: Text(
-              'Echo Music',
+              'Sonora',
               style: appBarTitleStyle(),
             ),
             centerTitle: true,

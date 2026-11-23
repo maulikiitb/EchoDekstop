@@ -383,3 +383,85 @@ Stream<List<int>> _rangedStream(Uri url, int start, int end) async* {
 /// Public wrapper used by the playback self-test (test/playback_check_test.dart).
 Stream<List<int>> rangedAudioStream(Uri url, int start, int end) =>
     _rangedStream(url, start, end);
+
+// ----------------------------------------------------------------------------
+// DESKTOP PLAYBACK: download to a local cache file, then play the file.
+// libmpv reads the duration and seeks reliably from a real file, whereas the
+// on-the-fly proxy stream left the player "loading" forever with 0:00 length.
+// ----------------------------------------------------------------------------
+final Map<String, Future<File>> _cacheJobs = {};
+
+Directory _audioCacheDir() {
+  final dir = Directory('${Directory.systemTemp.path}${Platform.pathSeparator}sonora_audio_cache');
+  if (!dir.existsSync()) dir.createSync(recursive: true);
+  return dir;
+}
+
+void _trimAudioCache({int keep = 60}) {
+  try {
+    final files = _audioCacheDir()
+        .listSync()
+        .whereType<File>()
+        .where((f) => !f.path.endsWith('.part'))
+        .toList()
+      ..sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
+    for (final f in files.skip(keep)) {
+      try {
+        f.deleteSync();
+      } catch (_) {}
+    }
+  } catch (_) {}
+}
+
+Future<File> _downloadToCache(String videoId, String quality) async {
+  final sep = Platform.pathSeparator;
+  final dir = _audioCacheDir();
+  // Reuse an existing complete file for this video and quality.
+  for (final f in dir.listSync().whereType<File>()) {
+    final name = f.path.split(sep).last;
+    if (name.startsWith('${videoId}_$quality.') && !name.endsWith('.part')) {
+      if (f.lengthSync() > 10000) {
+        f.setLastModifiedSync(DateTime.now());
+        return f;
+      }
+    }
+  }
+
+  final manifest = await fetchStreamManifest(_ytClient, videoId);
+  final streams = manifest.audioOnly.sortByBitrate();
+  final info = quality == 'high' ? streams.lastOrNull : streams.firstOrNull;
+  if (info == null) throw Exception('No audio stream available for this video.');
+
+  final ext = info.container.name == 'webm' ? 'webm' : 'm4a';
+  final target = File('${dir.path}$sep${videoId}_$quality.$ext');
+  final part = File('${target.path}.part');
+  final sink = part.openWrite();
+  try {
+    await sink.addStream(_rangedStream(info.url, 0, info.size.totalBytes - 1));
+    await sink.close();
+  } catch (e) {
+    try {
+      await sink.close();
+    } catch (_) {}
+    try {
+      part.deleteSync();
+    } catch (_) {}
+    rethrow;
+  }
+  await part.rename(target.path);
+  _trimAudioCache();
+  return target;
+}
+
+/// Returns an [AudioSource] backed by a locally cached copy of the track.
+Future<AudioSource> getCachedFileAudioSource(
+    String videoId, String quality, dynamic tag) async {
+  final job = _cacheJobs.putIfAbsent(
+      '${videoId}_$quality', () => _downloadToCache(videoId, quality));
+  try {
+    final file = await job;
+    return AudioSource.file(file.path, tag: tag);
+  } finally {
+    _cacheJobs.remove('${videoId}_$quality');
+  }
+}
